@@ -11,7 +11,7 @@ class SqlMessageHistory(BaseChatMessageHistory, BaseModel):
 
     @property
     def messages(self):
-        return get_messages_by_conversation_id(self.convo_idn)
+        return get_messages_by_conversation_id(self.convo_id)
     
     def add_message(self, message):
         return add_message_to_conversation(
