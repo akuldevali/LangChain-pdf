@@ -6,7 +6,7 @@ from app.web.api import (
     add_message_to_conversation
 )
 
-class SqkMessageHistory(BaseChatMessageHistory, BaseModel):
+class SqlMessageHistory(BaseChatMessageHistory, BaseModel):
     convo_id : str
 
     @property
@@ -22,3 +22,11 @@ class SqkMessageHistory(BaseChatMessageHistory, BaseModel):
     
     def clear(self):
         pass
+
+def build_memory(chat_args):
+    return ConversationBufferMemory(
+        chat_memory=SqlMessageHistory(convo_id=chat_args.conversation_id),
+        return_messages=True,
+        memory_key="chat_history",
+        output_key="answer"
+    )
