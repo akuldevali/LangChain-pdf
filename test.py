@@ -7,21 +7,28 @@ from queue import Queue
 from threading import Thread
 
 load_dotenv()
-queue = Queue()
+
+#Every chat session shoukd have a different queue, hence commenting this and initializing queue inside handler
+# queue = Queue()
 
 #This class will stream tokens as it receives it from the OpenAI servers
 #gotta figure out a way to push the tokens from here to the StreamingChain generator
 class StreamingHandler(BaseCallbackHandler):
+
+    def __init__(self, queue):
+        self.queue = queue
+
+
     def on_llm_new_token(self, token, **kwargs):
-        queue.put(token)
+        self.queue.put(token)
 
     def on_llm_end(self, response, **kwargs):
-        queue.put(None)
+        self.queue.put(None)
 
     def on_llm_error(self, error, **kwargs):
-        queue.put(None)
+        self.queue.put(None)
 
-chat = ChatOpenAI(streaming=True, callbacks=[StreamingHandler()])
+chat = ChatOpenAI(streaming=True)
 
 prompt = ChatPromptTemplate.from_messages(
     [("human", "{content}")]
@@ -39,14 +46,18 @@ prompt = ChatPromptTemplate.from_messages(
 # for output in chain.stream(input={"content": "tell me a 2 jokes"}):
 #     print(output)
 
-class StreamingChain(LLMChain):
+class StreamableChain:
     ##Overriding the stream function 
     def stream(self, input):
+
+        queue= Queue()
+        handler =  StreamingHandler(queue)
+
         # self(input)  This executes the chian but waits for all tokens to be assembled before executing next line, which defeats our purpuse of streaming from 
         #Can solve this by running it in a separate thread
 
         def task():
-            self(input)
+            self(input, callbacks=[handler]) #adding callbacks here from line31 so that
 
         Thread(target=task).start()
 
@@ -55,6 +66,15 @@ class StreamingChain(LLMChain):
             if token is None:
                 break
             yield token
+
+#This class is used to extend the functionality of StreamableChain with a different type of LLM chain
+class StreamingChain(StreamableChain, LLMChain):
+    pass
+
+#Doing this is easier than extending ConvoRetrievalChain and define a stream fucntion inside that new class
+# class StreamingConversationalRetrievalChain(StreamableChain, ConversationalRetrievalChain):
+#     pass
+
 
 chain = StreamingChain(llm=chat, prompt=prompt)
 
