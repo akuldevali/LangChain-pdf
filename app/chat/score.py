@@ -58,6 +58,12 @@ def score_conversation(
     client.hincrby("memory_score_values", memory, score)
     client.hincrby("memory_score_counts", memory, 1)
 
+    # client.hdel("retriever_score_values",llm)
+    # client.hdel("retriever_score_counts", llm)
+    # client.hdel("memory_score_values", llm)
+    # client.hdel("memory_score_counts", llm)
+
+
 
 
 def get_scores():
