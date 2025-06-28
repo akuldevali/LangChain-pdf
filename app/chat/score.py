@@ -1,3 +1,33 @@
+from app.chat.redis import client
+import random
+#get component scores from redis and pick a component based on score weight
+def random_component_by_score( component_type, component_map):
+    if component_type not in ["llm", "retriever","memory"]:
+        raise ValueError("Invalid Compnent Type")
+    
+    values  = client.hgetall(f"{component_type}_score_values")
+    counts  = client.hgetall(f"{component_type}_score_counts")
+
+    names = component_map.keys()
+
+    avg_score ={}
+    for name in names:
+        score = int(values.get(name, 1))
+        count = int(counts.get(name, 1))
+        avg = score / count
+        avg_score[name] = max(avg, 0.1) #This prevents the program from not selecting a particular component if the first vote is a downvote(i.e Zero)
+
+    #weighted random selection  
+    sum_scores = sum(avg_score.values())
+    random_val = random.uniform(0, sum_scores)
+    cumulative = 0
+    for name, score in avg_score.items():
+        cumulative += score
+        if random_val <= cumulative:
+            return name
+
+
+
 def score_conversation(
     conversation_id: str, score: float, llm: str, retriever: str, memory: str
 ) -> None:
@@ -16,8 +46,18 @@ def score_conversation(
 
     score_conversation('abc123', 0.75, 'llm_info', 'retriever_info', 'memory_info')
     """
+    score = min(max(score,0),1)
 
-    pass
+    #hash increment by
+    client.hincrby("llm_score_values", llm, score)
+    client.hincrby("llm_score_counts",llm, 1)
+
+    client.hincrby("retriever_score_values", llm, score)
+    client.hincrby("retriever_score_counts", llm, 1)
+    
+    client.hincrby("memory_score_values", llm, score)
+    client.hincrby("memory_score_counts", llm, 1)
+
 
 
 def get_scores():
