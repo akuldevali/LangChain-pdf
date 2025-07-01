@@ -2,7 +2,6 @@ from langchain.memory import ConversationBufferMemory
 from app.chat.memories.histories.sql_history import SqlMessageHistory
 
 
-
 def build_memory(chat_args):
     return ConversationBufferMemory(
         chat_memory=SqlMessageHistory(convo_id=chat_args.conversation_id),

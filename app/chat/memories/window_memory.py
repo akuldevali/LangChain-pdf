@@ -1,5 +1,5 @@
-from langchain.memory import ConversationBufferWindowMemory
 from app.chat.memories.histories.sql_history import SqlMessageHistory
+from langchain.memory import ConversationBufferWindowMemory
 
 def window_buffer_memory_builder(chat_args):
     return ConversationBufferWindowMemory(

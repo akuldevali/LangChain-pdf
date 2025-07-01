@@ -5,6 +5,7 @@ from app.web.api import (
     add_message_to_conversation
 )
 
+#A custom class to persist messages in db
 class SqlMessageHistory(BaseChatMessageHistory, BaseModel):
     convo_id : str
 
