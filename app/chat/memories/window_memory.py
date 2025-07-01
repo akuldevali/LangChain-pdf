@@ -7,5 +7,5 @@ def window_buffer_memory_builder(chat_args):
         return_messages=True,
         memory_key="chat_history",
         output_key="answer",
-        k=5
+        k=2
     )
