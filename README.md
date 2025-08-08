@@ -2,16 +2,59 @@
 
 This is an intelligent chatbot application built using **LangChain**, **Flask**, **Pinecone** and **OpenAI**, capable of answering natural language questions based on the content of uploaded PDF documents.
 
-### 🔍 Features
+### 🚀 Features
 
-- **Retrieval-Augmented Generation (RAG)**: Uses semantic search with LangChain and Pinecone to retrieve relevant chunks from the PDF.
-- **Persistent Conversation History**: Stores multi-turn chat conversations in an **SQLite** database using a custom memory class.
-- **Streaming Support**: Implements token-level streaming with a custom handler to display responses in real-time.
-- **Self-Learning Feedback Loop**: Integrated with **Langfuse** to track user feedback and dynamically weigh different chat models, memory strategies, and retrievers.
-- **Task Queuing**: Uses a background worker and **Redis** to handle long-running embedding or processing tasks asynchronously.
+### **1. Document Ingestion & Vector Storage**
+- **PDF Parsing** using `PyPDFLoader` for text extraction from PDF files.
+- **Pinecone Vector Store** integration for persistent, high-speed similarity search.
+- **Metadata-Enhanced Indexing** to scope retrievals and improve relevance.
+
+### **2. Multi-Model LLM Integration**
+- Uses **OpenAI GPT-4o** and **GPT-3.5 Turbo** for different stages of the pipeline.
+- Implements an **LLM Map** to dynamically select the appropriate model for streaming or non-streaming tasks.
+
+### **3. Custom Retrieval Pipeline**
+- **Custom Retriever** built for Pinecone to control query behavior and scoring.
+- **Component Scoring System** with feedback-driven selection — retrieves past component usage for a conversation and reuses it, or selects a new one based on scoring logic.
+- **Retriever Maps** to compare different retrievers and learn from user feedback on the most effective one.
+- **Generalized Component Picker** to support varied retrieval strategies.
+
+### **4. Advanced Conversational Memory**
+- **SQL Buffer Memory Map** for persistent conversation state storage.
+- **Custom `MsgHistory` Class** to manage conversation history.
+- **Windowed Memory Map (k=5)** to maintain only the most recent interactions for concise, relevant prompts.
+- **Memory Mapping** for multi-session support.
+
+### **5. Real-Time Streaming Responses**
+- **Custom Streaming Handler** for token-by-token model output delivery.
+- Support for **session-specific queues** to isolate concurrent conversations.
+- Optional **non-streaming mode** for synchronous operations.
+
+### **6. RAG Architecture**
+- **Retriever-Augmented Generation** pipeline that blends:
+  - Vector store retrieval
+  - Contextual prompt construction
+  - LLM-powered completion
+- Tuned **Condense Question Chain** to reframe follow-up questions using non-streaming models for efficiency.
+
+
+### **7. Job Processing & Scalability**
+- **Redis-backed Job Queue** to handle background tasks efficiently.
+- Worker process architecture for async document ingestion and indexing.
+
+### **8. Robust Session & Context Management**
+- **Unique Session Queues** to isolate user streams.
+- **Scoped Retrieval** to ensure only relevant documents per session are accessed.
 
 ---
-
+### 🛠️ Tech Stack
+- **Backend:** Python, LangChain  
+- **Vector DB:** Pinecone  
+- **Queue & Cache:** Redis  
+- **Document Loader:** PyPDFLoader  
+- **LLMs:** OpenAI GPT-4o, GPT-3.5 Turbo  
+- **Memory & Retrieval:** Custom LangChain Components, SQL Buffer Memory, Window Memory  
+- **Monitoring:** LangFuse  
 
 # ⚙️ Environment Setup
 
